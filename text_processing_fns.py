@@ -17,26 +17,26 @@ rcParams.update({'figure.autolayout': True})
 
 # TEXT PROCESSING FUNCTIONS
 
-def count_words(vKnowledgeBase):
+def count_words(news):
 
-    """ This function computes the number of words in each utterance belonging to the knowledge base.
+    """ This function computes the number of words in each news belonging to the dataset.
 
-    :param vKnowledgeBase: pandas series with the utterances of the knowledge base.
+    :param news: pandas series with the texts of the dataset.
 
-    :return: pandas series with the number of words used in each utterance.
+    :return: pandas series with the number of words used in each news.
 
 
     """
-    return vKnowledgeBase.apply(lambda x: len(str(x).split()))
+    return news.apply(lambda x: len(str(x).split()))
 
 
 def remove_stopwords(news):
 
-    """ This function eliminates the stop words from each utterance belonging to the knowledge base.
+    """ This function eliminates the stop words from each news belonging to the dataset.
 
-    :param news: pandas series with the utterances of the knowledge base.
+    :param news: pandas series with the texts of the dataset.
 
-    :return: pandas series with the knowledge base without stop words.
+    :return: pandas series with the dataset without stop words.
 
 
     """
@@ -44,90 +44,90 @@ def remove_stopwords(news):
     return news.apply(lambda x: " ".join(x for x in x.split() if x not in stop))
 
 
-def remove_tilde(vUtterance):
+def remove_tilde(text):
 
     """ This function removes the accent mark (or "tilde") from a utterance.
 
-    :param vUtterance: string variable with a utterance.
+    :param text: string variable with a news.
 
-    :return: string variable with the utterance without "tildes".
+    :return: string variable with the text without "tildes".
 
 
     """
 
-    return ''.join((c for c in unicodedata.normalize('NFD', vUtterance) if unicodedata.category(c) != 'Mn'))
+    return ''.join((c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn'))
 
 
-def remove_characters(vKnowledgeBase):
+def remove_characters(news):
 
     """ This function removes the irrelevant puntuation characters (!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~)
-    from each utterance belonging to the knowledge base.
+    from each text belonging to the dataset.
 
-    :param vKnowledgeBase: pandas series with the utterances of the knowledge base.
+    :param news: pandas series with the texts of the dataset.
 
-    :return: pandas series with the knowledge base without irrelevant characters.
+    :return: pandas series with the dataset without irrelevant characters.
 
 
     """
-    return vKnowledgeBase.str.replace('[^\w\s]', '')
+    return news.str.replace('[^\w\s]', '')
 
 
-def lowercase_transform(vKnowledgeBase):
+def lowercase_transform(news):
 
     """ This function transforms the utterances belonging to the knowledge base to lowercase.
 
-    :param vKnowledgeBase: pandas series with the utterances of the knowledge base.
+    :param news: pandas series with the texts of the knowledge base.
 
     :return: pandas series with the knowledge base transformed to lowercase.
 
 
     """
 
-    return vKnowledgeBase.apply(lambda x: " ".join(x.strip().lower() for x in x.split()))
+    return news.apply(lambda x: " ".join(x.strip().lower() for x in x.split()))
 
 
-def text_lemmatization(utterance):
+def text_lemmatization(text):
 
     """ This function apply lemmatization over all the words of a utterance.
 
-    :param utterance: string variable.
+    :param text: string variable.
 
     :return: string variable lemmatized.
 
     """
 
-    words = word_tokenize(utterance)
+    words = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
     words_lemma = [lemmatizer.lemmatize(word) for word in words]
 
     return ' '.join(words_lemma)
 
 
-def lemmatization_transform(vKnowledgeBase):
+def lemmatization_transform(news):
 
-    """ This function apply lemmatization in every utterance belonging to the knowledge base.
+    """ This function apply lemmatization in every news belonging to the dataset.
 
-    :param vKnowledgeBase: pandas series with the utterances of the knowledge base.
+    :param news: pandas series with the utterances of the knowledge base.
 
     :return: pandas series with lemmatized knowledge base.
 
 
     """
 
-    return vKnowledgeBase.apply(lambda x: text_lemmatization(x))
+    return news.apply(lambda x: text_lemmatization(x))
 
 
-def stemming_transform(vKnowledgeBase):
+def stemming_transform(news):
 
     """ This function apply stemming function in every utterance belonging to the knowledge base.
 
-    :param vKnowledgeBase: pandas series with the utterances of the knowledge base.
+    :param news: pandas series with the news of the knowledge base.
 
     :return: pandas series with stemmed knowledge base.
 
     """
 
-    return vKnowledgeBase.apply(lambda x: text_stemming(x))
+    return news.apply(lambda x: text_stemming(x))
 
 
 def text_stemming(utterance):
@@ -147,13 +147,13 @@ def text_stemming(utterance):
     return ' '.join(words_stem)
 
 
-def words_frequency(text, intent_name, plot=False):
+def words_frequency(text, category_name, plot=False):
 
     """ This function computes word frequency of a text.
 
-    :param text: string variable with all concatenated utterances of a specific intent of the knowledge base.
-           intent_name: string variable with the intent name in analysis.
-           plot: this option allows to graph the frequency distribution of the words. Default, False
+    :param text: string variable with all concatenated news of a specific category of the dataset.
+    :param category_name: string variable with the category name in analysis.
+    :param  plot: this option allows to graph the frequency distribution of the words. Default, False
 
     :return: pandas dataframe variable with the frequency of every word in the knowledge base.
 
@@ -164,14 +164,14 @@ def words_frequency(text, intent_name, plot=False):
 
     # gives set of unique words
     unique_words = pd.DataFrame(sorted(set(text_list)), columns=['word_names'])
-    unique_words[intent_name] = unique_words['word_names'].apply(lambda x: text_list.count(x))
-    unique_words = unique_words.sort_values(by=[intent_name], ascending=False).set_index('word_names')
-    # unique_words.rename(columns={'Counts': intent_name})
+    unique_words[category_name] = unique_words['word_names'].apply(lambda x: text_list.count(x))
+    unique_words = unique_words.sort_values(by=[category_name], ascending=False).set_index('word_names')
+    # unique_words.rename(columns={'Counts': category_name})
     print(unique_words.head())
 
     if plot:
         unique_words.plot(kind='bar')
-        plt.title(intent_name)
+        plt.title(category_name)
         plt.show()
 
     return unique_words
@@ -190,78 +190,78 @@ def lexical_diversity(text):
     return (len(set(text)) / len(text))*100
 
 
-def extract_bigrams(utterance):
+def extract_bigrams(text):
 
-    """ This function produces bigrams list given a utterance.
+    """ This function produces bigrams list given a text.
 
-    :param utterance: string variable.
+    :param text: string variable.
 
-    :return: list variable with the bigrams obtained from the input utterance.
+    :return: list variable with the bigrams obtained from the input text.
 
     """
-    utterance = utterance.split()
+    utterance = text.split()
     return list(nltk.bigrams(utterance))
 
 
-def extract_trigrams(utterance):
+def extract_trigrams(text):
 
     """ This function produces trigrams list given a utterance.
 
-    :param utterance: string variable.
+    :param text: string variable.
 
     :return: list variable with the trigrams obtained from the input utterance.
     """
 
-    utterance = utterance.split()
-    return list(nltk.trigrams(utterance))
+    text = text.split()
+    return list(nltk.trigrams(text))
 
 
-def intent_bigrams_frequency(vKnowledgeBase, intent_name):
+def intent_bigrams_frequency(news, category_name):
 
     """ This function computes the frequency of bigrams in the knowledge base of specific intent.
 
 
-    :param vKnowledgeBase: pandas series with the utterances of knowledge base.
-           intent_name: string variable with the name of the intent in analysis.
+    :param news: pandas series with the texts of dataset.
+           category_name: string variable with the name of the category in analysis.
 
     :return: pandas dataframe with the frequency of the bigrams in the knowledge base.
 
 
     """
-    b = vKnowledgeBase.apply(lambda x: extract_bigrams(x))
+    b = news.apply(lambda x: extract_bigrams(x))
     b = b.reset_index(drop=True)
     a = b[0]
     for i in range(1, len(b)):
         a = a + b[i]
 
     fdist = nltk.FreqDist(a)
-    df = pd.DataFrame(fdist.items(), columns=['Bigrams', intent_name])
+    df = pd.DataFrame(fdist.items(), columns=['Bigrams', category_name])
 
-    return df.sort_values(by=[intent_name], ascending=False).set_index('Bigrams')
-
-
-def intent_trigrams_frequency(vKnowledgeBase, intent_name):
-
-    """ This function computes the frequency of trigrams in the knowledge base of specific intent.
+    return df.sort_values(by=[category_name], ascending=False).set_index('Bigrams')
 
 
-    :param vKnowledgeBase: pandas series with the utterances of knowledge base.
-           intent_name: string variable with the name of the intent in analysis.
+def intent_trigrams_frequency(news, category_name):
+
+    """ This function computes the frequency of trigrams in the knowledge base of specific category.
+
+
+    :param news: pandas series with the texts of knowledge base.
+           category_name: string variable with the name of the intent in analysis.
 
     :return: pandas dataframe with the frequency of the trigrams in the knowledge base.
 
 
     """
 
-    tri = vKnowledgeBase.apply(lambda x: extract_trigrams(x))
+    tri = news.apply(lambda x: extract_trigrams(x))
     tri = tri.reset_index(drop=True)
     a = tri[0]
     for i in range(1, len(tri)):
         a = a + tri[i]
 
     fdist = nltk.FreqDist(a)
-    df = pd.DataFrame(fdist.items(), columns=['Trigrams', intent_name])
-    return df.sort_values(by=[intent_name], ascending=False).set_index('Trigrams')
+    df = pd.DataFrame(fdist.items(), columns=['Trigrams', category_name])
+    return df.sort_values(by=[category_name], ascending=False).set_index('Trigrams')
 
 
 def fn_calculate_word_frequency_per_category(dataset, generate_excel=False):
